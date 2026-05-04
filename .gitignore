@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+pytest-cache-files-*/
+.streamlit/
+.env
+.env.*
+*.log
+Thumbs.db
+Desktop.ini
