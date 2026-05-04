@@ -119,11 +119,29 @@ def _section_stats(sections: Dict[str, str]) -> List[Dict[str, object]]:
     return stats
 
 
+def _highlight_terms(text: str, terms: List[str], limit: int = 900) -> str:
+    snippet = text[:limit]
+    if not terms:
+        return snippet
+
+    highlighted = snippet
+    for term in sorted(set(terms), key=len, reverse=True):
+        if not term:
+            continue
+        highlighted = re.sub(
+            rf"(?i)\b({re.escape(term)})\b",
+            r"[[\1]]",
+            highlighted,
+        )
+    return highlighted
+
+
 def _render_vectorless_rag_view(
     cleaned_text: str,
     sections: Dict[str, str],
     retrieved: List[object],
     query: str,
+    retrieval_explanation: object,
 ) -> None:
     st.markdown("### Vectorless RAG View")
     st.info(
@@ -170,6 +188,159 @@ def _render_vectorless_rag_view(
         st.caption("Concatenated retrieved text goes to Gemini")
         st.code("\n\n".join(item.text[:180] for item in retrieved) or "No retrieved text", language="text")
 
+    st.markdown("#### Retrieval Flow Diagram")
+    top_ranked = retrieval_explanation.ranked_sections[:3]
+    top_ranked_labels = "<br/>".join(
+        f"{index + 1}. {item['section']} ({item['score']})"
+        for index, item in enumerate(top_ranked)
+    ) or "No ranked sections"
+    fetched_labels = "<br/>".join(
+        f"{index + 1}. {item.section} ({len(item.text)} chars)"
+        for index, item in enumerate(retrieved)
+    ) or "No fetched sections"
+    query_labels = ", ".join(retrieval_explanation.query_terms) or "No query tokens"
+    prioritized_labels = ", ".join(retrieval_explanation.prioritized_sections) or "No priority sections"
+
+    st.markdown(
+        f"""
+        <div style="display:grid;grid-template-columns:1fr 70px 1fr 70px 1fr 70px 1fr;gap:8px;align-items:center;margin:8px 0 20px 0;">
+          <div style="background:#10243e;color:#ffffff;border-radius:16px;padding:16px;min-height:150px;">
+            <div style="font-weight:700;font-size:18px;margin-bottom:8px;">1. Query</div>
+            <div style="font-size:14px;opacity:0.9;margin-bottom:10px;">User question</div>
+            <div style="font-size:16px;">{query}</div>
+            <div style="font-size:13px;opacity:0.85;margin-top:10px;">Tokens: {query_labels}</div>
+          </div>
+          <div style="text-align:center;font-size:34px;color:#54789c;">→</div>
+          <div style="background:#ffffff;border:1px solid #d9e3f0;border-radius:16px;padding:16px;min-height:150px;">
+            <div style="font-weight:700;font-size:18px;margin-bottom:8px;color:#10243e;">2. Prioritize</div>
+            <div style="font-size:14px;color:#49627f;margin-bottom:10px;">Retriever chooses likely sections</div>
+            <div style="font-size:15px;color:#10243e;">{prioritized_labels}</div>
+          </div>
+          <div style="text-align:center;font-size:34px;color:#54789c;">→</div>
+          <div style="background:#ffffff;border:1px solid #d9e3f0;border-radius:16px;padding:16px;min-height:150px;">
+            <div style="font-weight:700;font-size:18px;margin-bottom:8px;color:#10243e;">3. Rank</div>
+            <div style="font-size:14px;color:#49627f;margin-bottom:10px;">Sections scored by rules</div>
+            <div style="font-size:15px;color:#10243e;line-height:1.5;">{top_ranked_labels}</div>
+          </div>
+          <div style="text-align:center;font-size:34px;color:#54789c;">→</div>
+          <div style="background:#ffffff;border:1px solid #d9e3f0;border-radius:16px;padding:16px;min-height:150px;">
+            <div style="font-weight:700;font-size:18px;margin-bottom:8px;color:#10243e;">4. Fetch</div>
+            <div style="font-size:14px;color:#49627f;margin-bottom:10px;">Top sections selected</div>
+            <div style="font-size:15px;color:#10243e;line-height:1.5;">{fetched_labels}</div>
+          </div>
+          <div style="text-align:center;font-size:34px;color:#54789c;">→</div>
+          <div style="background:#1d4d7a;color:#ffffff;border-radius:16px;padding:16px;min-height:150px;">
+            <div style="font-weight:700;font-size:18px;margin-bottom:8px;">5. Gemini</div>
+            <div style="font-size:14px;opacity:0.9;margin-bottom:10px;">Fetched context is analyzed</div>
+            <div style="font-size:15px;line-height:1.5;">Top risks, summary, categories, red flags</div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("#### Fetch Trace")
+    trace_a, trace_b = st.columns(2)
+    with trace_a:
+        st.markdown("**Query Tokens**")
+        st.json(retrieval_explanation.query_terms)
+        st.markdown("**Prioritized Sections**")
+        st.json(retrieval_explanation.prioritized_sections)
+    with trace_b:
+        st.markdown("**Why these sections were fetched**")
+        st.caption("Final score = base score + keyword score + red-flag bonus")
+        st.json(
+            [
+                {
+                    "section": item["section"],
+                    "score": item["score"],
+                    "base_score": item["base_score"],
+                    "keyword_score": item["keyword_score"],
+                    "red_flag_score": item["red_flag_score"],
+                    "matched_terms": item["matched_terms"],
+                }
+                for item in retrieval_explanation.ranked_sections
+            ]
+        )
+
+    st.markdown("#### Ranked Section Cards")
+    for item in retrieval_explanation.ranked_sections:
+        st.write(f"`{item['section']}`  score={item['score']}  matched={item['matched_terms'] or ['none']}")
+        st.progress(min(int(item["score"] * 50), 100))
+        with st.expander(f"Why {item['section']} scored {item['score']}"):
+            st.write(
+                f"Base score: {item['base_score']} | "
+                f"Keyword score: {item['keyword_score']} | "
+                f"Red-flag bonus: {item['red_flag_score']}"
+            )
+            st.code(item["preview"], language="text")
+
+    st.markdown("#### Worked Example: How Data Was Found")
+    if retrieval_explanation.ranked_sections:
+        top_item = retrieval_explanation.ranked_sections[0]
+        fetched_section = next((item for item in retrieved if item.section == top_item["section"]), None)
+
+        example_a, example_b, example_c = st.columns(3)
+        with example_a:
+            st.markdown("**Step 1. Query Understanding**")
+            st.write(f"Question: `{query}`")
+            st.write(f"Tokens used for matching: `{retrieval_explanation.query_terms}`")
+            st.write(f"Section priority chosen: `{retrieval_explanation.prioritized_sections}`")
+
+        with example_b:
+            st.markdown("**Step 2. How It Found Data**")
+            st.write(f"Top matched section: `{top_item['section']}`")
+            st.write(
+                f"Matched terms: `{top_item['matched_terms']}` | "
+                f"Final score: `{top_item['score']}`"
+            )
+            st.code(
+                _highlight_terms(top_item["preview"], top_item["matched_terms"], limit=500),
+                language="text",
+            )
+
+        with example_c:
+            st.markdown("**Step 3. What It Fetched**")
+            if fetched_section:
+                st.write(
+                    f"The retriever selected `{fetched_section.section}` "
+                    f"and passed `{len(fetched_section.text)}` characters forward."
+                )
+                st.code(
+                    _highlight_terms(fetched_section.text, top_item["matched_terms"], limit=500),
+                    language="text",
+                )
+            else:
+                st.write("No fetched section matched the top ranked explanation.")
+
+        st.markdown("**Step 4. How Output Was Produced**")
+        output_a, output_b = st.columns(2)
+        with output_a:
+            st.caption("Context sent to Gemini")
+            st.code(
+                "\n\n".join(item.text[:260] for item in retrieved) or "No retrieved context",
+                language="text",
+            )
+        with output_b:
+            st.caption("Gemini turns fetched context into structured output")
+            st.write(
+                "The app sends the fetched sections to Gemini, then the analyzer converts the model "
+                "response into top risks, categories, red flags, confidence score, and summary."
+            )
+            st.code(
+                json.dumps(
+                    {
+                        "top_risks": "<list>",
+                        "risk_categories": "<object>",
+                        "red_flags": "<list>",
+                        "confidence_score": "<int>",
+                        "summary": "<string>",
+                    },
+                    indent=2,
+                ),
+                language="json",
+            )
+
     st.markdown("#### Section Breakdown")
     for item in _section_stats(sections):
         st.write(f"`{item['section']}`  {item['chars']} chars  ({item['share']}%)")
@@ -215,6 +386,7 @@ with tab_single:
                     llm_client = GeminiClient(model=model_name, api_key=api_key_value)
                     analyzer = RiskAnalyzer(llm_client=llm_client, require_llm=True)
 
+                    retrieval_explanation = retriever.explain_retrieval(query, sections)
                     retrieved = retriever.retrieve(query, sections, max_sections=2)
                     combined_text = "\n\n".join(result.text for result in retrieved)
                     analysis = analyzer.analyze(combined_text)
@@ -241,7 +413,13 @@ with tab_single:
                         st.write("\n".join(analysis.risky_sentences[:50]) or "None detected")
 
                     with st.expander("How Vectorless RAG Stores This Report", expanded=True):
-                        _render_vectorless_rag_view(cleaned_text, sections, retrieved, query)
+                        _render_vectorless_rag_view(
+                            cleaned_text,
+                            sections,
+                            retrieved,
+                            query,
+                            retrieval_explanation,
+                        )
 
                     output = {
                         "top_risks": analysis.top_risks,
