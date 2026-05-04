@@ -1,58 +1,107 @@
-# Financial Risk Intelligence Assistant
+# Axithor Risk AI
 
-A lightweight, explainable **vectorless RAG** app for financial report analysis.
+[![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Gemini](https://img.shields.io/badge/LLM-Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
+[![Repo](https://img.shields.io/badge/GitHub-Axithor_Risk_AI-181717?style=for-the-badge&logo=github)](https://github.com/jayaprakash2207/Axithor-Risk-AI)
 
-This project extracts text from SEC-style HTML and PDF reports, splits the content into meaningful sections, retrieves the most relevant sections with rules instead of embeddings, and uses Gemini to generate structured risk analysis.
+An explainable **vectorless RAG** system for financial risk analysis.
 
-## Why This Project?
+Axithor Risk AI reads SEC-style HTML and PDF reports, extracts structured sections, retrieves the most relevant parts with a rule-based pipeline instead of embeddings, and uses Gemini to generate risk-focused insights. The result is a simpler, more transparent RAG workflow that is easier to inspect, debug, and demo.
 
-Most RAG demos jump straight to vector databases and embeddings.
-
-This project takes a different route:
+## Highlights
 
 - No vector database
 - No embeddings pipeline
-- No opaque retrieval layer
-- Clear, inspectable section-based ranking
+- Explainable rule-based retrieval
+- Financial-report-focused section splitting
+- Gemini-powered structured risk analysis
+- Streamlit UI with a built-in vectorless RAG visualization panel
+- Report comparison workflow for detecting changes in risk framing
 
-That makes it easier to understand, debug, and visualize how retrieval works for structured financial documents.
+## Why Vectorless RAG?
 
-## What It Does
+Many RAG systems hide retrieval logic behind embeddings and similarity search. This project keeps retrieval visible.
 
-- Parses HTML and PDF annual reports
-- Cleans and normalizes raw report text
-- Splits reports into sections like:
-  - `risk_factors`
-  - `mda`
-  - `notes`
-  - `legal`
-  - `auditor_notes`
-- Retrieves the most relevant sections for a user query with a rule-based retriever
-- Uses Gemini to produce:
-  - top risks
-  - categorized risks
-  - red flags
-  - confidence score
-  - summary
-- Includes a Streamlit UI for:
-  - single report analysis
-  - report comparison
-  - vectorless RAG visualization
+Instead of storing vectors, Axithor Risk AI stores:
 
-## Key Idea: What "Vectorless RAG" Means Here
+1. cleaned plain text
+2. named report sections
+3. section relevance scores
+4. retrieved context sent to Gemini
 
-Instead of storing embeddings, this project stores:
+That means you can actually see:
 
-1. Cleaned plain text from the uploaded report
-2. Named section buckets created by heuristic section splitting
-3. Retrieval scores from a rule-based matcher
-4. Concatenated top sections sent to Gemini as context
+- what was parsed
+- how it was grouped
+- what was retrieved
+- why the model got that context
 
-So the retrieval flow is:
+## How It Works
 
-`Report -> Parsed Text -> Section Splitter -> Rule-Based Retrieval -> Gemini Analysis`
+```text
+Report File
+   ->
+HTML/PDF Parser
+   ->
+Cleaned Plain Text
+   ->
+Section Splitter
+   ->
+Named Section Buckets
+   ->
+Rule-Based Retriever
+   ->
+Top Matching Sections
+   ->
+Gemini
+   ->
+Risk Analysis Output
+```
 
-This makes the pipeline easier to inspect and explain than a traditional embedding-based RAG setup.
+## Features
+
+### Single Report Analysis
+
+Upload one filing and get:
+
+- top risks
+- risk categories
+- red flags
+- confidence score
+- concise summary
+- highlighted risky sentences
+
+### Report Comparison
+
+Upload an older and newer filing to detect:
+
+- new risks
+- removed risks
+- tone changes
+- risk intensity changes
+- new red flags
+
+### Vectorless RAG Visualization
+
+The UI includes a dedicated panel showing:
+
+- parsed text size
+- stored section buckets
+- retrieval scores
+- selected context passed to Gemini
+- in-memory data shape
+
+This makes the retrieval path easy to explain in demos, interviews, and project reviews.
+
+## Example Questions
+
+You can ask prompts like:
+
+- `What are the main risks?`
+- `What operational risks stand out?`
+- `Are there any red flags in this filing?`
+- `How has the company’s risk profile changed?`
 
 ## Project Structure
 
@@ -83,39 +132,17 @@ This makes the pipeline easier to inspect and explain than a traditional embeddi
 `-- README.md
 ```
 
-## Features
+## Architecture Snapshot
 
-### 1. Single Report Analysis
-
-Upload a PDF or HTML filing and ask:
-
-- What are the main risks?
-- Are there any red flags?
-- What operational concerns stand out?
-
-The app retrieves the most relevant sections, sends them to Gemini, and returns a structured answer.
-
-### 2. Compare Reports
-
-Upload an older and newer report to detect:
-
-- new risks
-- removed risks
-- tone change
-- intensity change
-- red flag deltas
-
-### 3. Vectorless RAG Visualization
-
-The Streamlit app includes a dedicated panel that shows:
-
-- raw parsed text size
-- section buckets stored in memory
-- retrieval scores
-- selected context passed to Gemini
-- in-memory JSON-like structure
-
-This is especially useful for demos, interviews, and learning how non-vector retrieval works.
+| Layer | File(s) | Responsibility |
+|---|---|---|
+| Parsing | `parser/html_parser.py`, `parser/pdf_parser.py` | Extract clean text from HTML and PDF |
+| Segmentation | `segmentation/section_splitter.py` | Detect financial-report sections like `risk_factors` and `mda` |
+| Retrieval | `retrieval/rule_engine.py` | Rank sections using rule-based keyword and section-priority logic |
+| LLM | `llm/gemini_interface.py` | Send retrieved context to Gemini |
+| Analysis | `analysis/risk_analyzer.py` | Produce risk summaries, categories, and red flags |
+| Comparison | `analysis/comparison_engine.py` | Compare old vs new reports |
+| UI | `ui/app.py` | Streamlit interface and vectorless-RAG visualization |
 
 ## Tech Stack
 
@@ -129,9 +156,7 @@ This is especially useful for demos, interviews, and learning how non-vector ret
 
 ## Setup
 
-### 1. Create and activate a virtual environment
-
-Windows PowerShell:
+### 1. Create a virtual environment
 
 ```powershell
 python -m venv .venv
@@ -147,27 +172,25 @@ python -m pip install pytest
 
 ## Gemini API Key
 
-The Streamlit app now supports entering the Gemini API key directly in the UI using a password field.
+You can provide the Gemini API key in either of these ways:
 
-You can also set it as an environment variable before launching:
+### Option 1. Enter it in the Streamlit UI
+
+The app includes a secure password-style field for the key.
+
+### Option 2. Set an environment variable
 
 ```powershell
 $env:GEMINI_API_KEY="your_key_here"
 ```
 
-## Running the Project
+## Run the Project
 
-### Run the CLI pipeline
+### CLI mode
 
 ```powershell
 .\.venv\Scripts\python.exe main.py --model gemini-2.5-flash
 ```
-
-Optional arguments:
-
-- `--file`: path to a PDF or HTML report
-- `--query`: analysis question
-- `--model`: Gemini model name
 
 Example:
 
@@ -175,7 +198,13 @@ Example:
 .\.venv\Scripts\python.exe main.py --file data\apple_2023.html --query "What are the main risks?" --model gemini-2.5-flash
 ```
 
-### Run the Streamlit app
+Available CLI arguments:
+
+- `--file` path to a PDF or HTML report
+- `--query` analysis question
+- `--model` Gemini model name
+
+### Streamlit app
 
 ```powershell
 .\.venv\Scripts\python.exe -m streamlit run ui\app.py
@@ -183,90 +212,66 @@ Example:
 
 Then:
 
-1. Paste your Gemini API key into the `Gemini API key` field
-2. Upload a report
-3. Click `Analyze Report`
-4. Open `How Vectorless RAG Stores This Report`
-
-## Example Workflow
-
-1. Load a report from `data/` or upload your own PDF/HTML filing
-2. Parse the document into clean plain text
-3. Split the text into semantic report sections
-4. Rank sections based on the user query
-5. Send the top sections to Gemini
-6. Return structured risk analysis and visualization
+1. paste the Gemini API key
+2. upload a PDF or HTML report
+3. run analysis
+4. open `How Vectorless RAG Stores This Report`
 
 ## Testing
 
-Run the existing tests with:
+Run the tests with:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Current test coverage includes the section splitter baseline behavior.
-
 ## Sample Data
 
-The repository includes:
+The repo currently includes:
 
 - `data/apple_2023.html`
 
-You can also place your own sample reports in [data/README.txt](/c:/vectorless%20rag/data/README.txt).
+You can add more sample reports to the `data/` folder for local testing.
 
-## Architecture Notes
+## What Makes This Useful
 
-### Parsing
+- Great for explainable RAG demos
+- Useful for SEC filing analysis prototypes
+- Easier to debug than embedding-heavy pipelines
+- Good learning project for document parsing and retrieval
+- Strong base for building deeper financial AI workflows
 
-- `parser/html_parser.py` extracts heading and paragraph blocks from SEC-style HTML
-- `parser/pdf_parser.py` extracts text from PDF pages with `pdfplumber`, falling back to `PyMuPDF`
+## Current Limitations
 
-### Segmentation
-
-- `segmentation/section_splitter.py` detects common filing sections using regex-based heading patterns
-
-### Retrieval
-
-- `retrieval/rule_engine.py` scores sections using keyword overlap and section prioritization
-- No embeddings are generated or stored
-
-### Analysis
-
-- `analysis/risk_analyzer.py` sends retrieved context to Gemini and expects structured JSON output
-- If no valid LLM result is returned, heuristic analysis is available in code as a fallback path
-
-### Comparison
-
-- `analysis/comparison_engine.py` compares older and newer report language to identify changes in risk framing
-
-## Good Fit For
-
-- financial document QA demos
-- explainable RAG experiments
-- SEC filing analysis
-- educational RAG projects
-- lightweight retrieval systems without vector infrastructure
-
-## Limitations
-
-- Retrieval is heuristic, not semantic embedding-based
-- Section extraction depends on common SEC-like headings
-- Output quality depends on report quality and Gemini response quality
+- Retrieval is heuristic rather than embedding-based
+- Section detection depends on common SEC-style headings
+- Output quality depends on parsed text quality and Gemini responses
 - Test coverage is still minimal
 
-## Next Ideas
+## Roadmap Ideas
 
-- add richer tests for parser, retriever, and comparison engine
-- export visual retrieval traces
-- support more filing formats
-- add local caching for parsed reports
-- add charts for section weights and retrieval ranking
+- richer parser and retriever tests
+- visual retrieval trace exports
+- more filing formats
+- parsed-document caching
+- chart-based retrieval analytics
+- stronger comparison reporting
 
 ## Security Note
 
-Do not commit API keys to source control. Use the Streamlit password field or environment variables for local testing, and rotate exposed keys if they were shared publicly.
+Do not commit API keys to source control. Use environment variables or the Streamlit key field for local testing. If a key has been exposed publicly, rotate it immediately.
+
+## Repository Status
+
+This repository is actively set up for:
+
+- local development
+- GitHub publishing
+- interactive Streamlit demos
+- explainable vectorless RAG experiments
 
 ## License
 
-Add a license file if you plan to publish or share this project.
+No license file has been added yet.
+
+If you want to open this project publicly for reuse, add a license such as MIT.
