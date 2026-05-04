@@ -20,10 +20,10 @@ from retrieval.rule_engine import RuleBasedRetriever
 from segmentation.section_splitter import SectionSplitter
 
 
-st.set_page_config(page_title="Financial Risk Intelligence Assistant", layout="wide")
+st.set_page_config(page_title="Axithor Risk AI", layout="wide")
 
-st.title("Financial Risk Intelligence Assistant")
-st.caption("Vectorless RAG for Financial Risk Analysis")
+st.title("Axithor Risk AI")
+st.caption("Explainable vectorless RAG for SEC filings, risk discovery, and report comparison.")
 
 use_ollama = st.checkbox("Use LLM (Gemini)", value=True, disabled=True)
 model_name = st.text_input("Gemini model", value="gemini-2.5-flash")

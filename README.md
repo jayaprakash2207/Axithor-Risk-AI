@@ -59,6 +59,16 @@ Gemini
 Risk Analysis Output
 ```
 
+## Screenshots
+
+### App Preview
+
+![Axithor Risk AI app preview](docs/screenshots/app-ui-preview.svg)
+
+### Vectorless RAG Flow
+
+![Vectorless RAG flow](docs/screenshots/vectorless-rag-flow.svg)
+
 ## Features
 
 ### Single Report Analysis
@@ -101,7 +111,7 @@ You can ask prompts like:
 - `What are the main risks?`
 - `What operational risks stand out?`
 - `Are there any red flags in this filing?`
-- `How has the company’s risk profile changed?`
+- `How has the company's risk profile changed?`
 
 ## Project Structure
 
@@ -270,8 +280,12 @@ This repository is actively set up for:
 - interactive Streamlit demos
 - explainable vectorless RAG experiments
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
-No license file has been added yet.
+This project is distributed under a **permission required / all rights reserved** license.
 
-If you want to open this project publicly for reuse, add a license such as MIT.
+See [LICENSE](LICENSE). Anyone who wants to use, modify, redistribute, or deploy this project must obtain prior permission from the owner.

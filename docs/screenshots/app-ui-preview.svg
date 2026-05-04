@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-label="Axithor Risk AI app preview">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7f8fb"/>
+      <stop offset="100%" stop-color="#eef4ff"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#132238"/>
+      <stop offset="100%" stop-color="#1d4d7a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="860" fill="url(#bg)"/>
+  <rect x="28" y="24" width="1344" height="812" rx="24" fill="#ffffff" stroke="#d9e3f0"/>
+  <rect x="28" y="24" width="1344" height="126" rx="24" fill="url(#hero)"/>
+  <text x="70" y="78" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#ffffff">Axithor Risk AI</text>
+  <text x="70" y="112" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#d6e7ff">Explainable vectorless RAG for SEC filings, risk discovery, and report comparison.</text>
+
+  <rect x="70" y="178" width="600" height="76" rx="16" fill="#f7f9fc" stroke="#d9e3f0"/>
+  <text x="92" y="206" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#3b4c63">Gemini model</text>
+  <text x="92" y="235" font-family="Consolas, monospace" font-size="24" fill="#10243e">gemini-2.5-flash</text>
+
+  <rect x="700" y="178" width="600" height="76" rx="16" fill="#f7f9fc" stroke="#d9e3f0"/>
+  <text x="722" y="206" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#3b4c63">Gemini API key</text>
+  <text x="722" y="235" font-family="Consolas, monospace" font-size="24" fill="#10243e">AIzaSy*******************</text>
+
+  <rect x="70" y="282" width="1230" height="230" rx="20" fill="#ffffff" stroke="#d9e3f0"/>
+  <text x="92" y="322" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#10243e">Single Report Analysis</text>
+  <rect x="92" y="346" width="920" height="82" rx="16" fill="#f7f9fc" stroke="#d9e3f0"/>
+  <text x="122" y="392" font-family="Segoe UI, Arial, sans-serif" font-size="28" fill="#8aa0bd">Drag and drop report here</text>
+  <rect x="1040" y="362" width="220" height="52" rx="14" fill="#1d4d7a"/>
+  <text x="1095" y="396" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ffffff">Browse files</text>
+  <text x="92" y="465" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#3b4c63">Ask a question about risks</text>
+  <rect x="92" y="478" width="1168" height="44" rx="12" fill="#f7f9fc" stroke="#d9e3f0"/>
+  <text x="110" y="507" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#10243e">What are the main risks?</text>
+
+  <rect x="70" y="542" width="400" height="244" rx="20" fill="#0f2741"/>
+  <text x="92" y="582" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Risk Analysis</text>
+  <text x="92" y="626" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#dce9fb">Top Risks</text>
+  <text x="92" y="654" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#ffffff">• Macro volatility</text>
+  <text x="92" y="680" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#ffffff">• Trade restrictions</text>
+  <text x="92" y="706" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#ffffff">• Supply-chain disruption</text>
+  <text x="92" y="732" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#ffffff">• Rapid tech competition</text>
+
+  <rect x="500" y="542" width="380" height="244" rx="20" fill="#ffffff" stroke="#d9e3f0"/>
+  <text x="522" y="582" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#10243e">Vectorless RAG View</text>
+  <text x="522" y="622" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#3b4c63">Raw text chars</text>
+  <text x="522" y="650" font-family="Consolas, monospace" font-size="26" fill="#10243e">196009</text>
+  <text x="522" y="690" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#3b4c63">Stored sections</text>
+  <text x="522" y="718" font-family="Consolas, monospace" font-size="26" fill="#10243e">risk_factors, mda, notes, legal</text>
+
+  <rect x="910" y="542" width="390" height="244" rx="20" fill="#ffffff" stroke="#d9e3f0"/>
+  <text x="932" y="582" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#10243e">Retrieved Context</text>
+  <text x="932" y="626" font-family="Consolas, monospace" font-size="16" fill="#10243e">{</text>
+  <text x="950" y="652" font-family="Consolas, monospace" font-size="16" fill="#10243e">"section": "risk_factors",</text>
+  <text x="950" y="678" font-family="Consolas, monospace" font-size="16" fill="#10243e">"score": 1.75,</text>
+  <text x="950" y="704" font-family="Consolas, monospace" font-size="16" fill="#10243e">"chars": 68568</text>
+  <text x="932" y="730" font-family="Consolas, monospace" font-size="16" fill="#10243e">}</text>
+</svg>
