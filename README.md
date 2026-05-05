@@ -69,6 +69,69 @@ Risk Analysis Output
 
 ![Vectorless RAG flow](docs/screenshots/vectorless-rag-flow.svg)
 
+## How Retrieval Works
+
+This project does not query a database to fetch context.
+
+Instead, it performs retrieval directly over parsed report text in memory:
+
+1. the parser reads a PDF or HTML filing into plain text
+2. the section splitter groups that text into named buckets like `risk_factors`, `mda`, `notes`, and `legal`
+3. the retriever tokenizes the user question
+4. it prioritizes likely sections based on those query terms
+5. it scores every available section with:
+   - a base priority score
+   - a keyword match score
+   - an optional red-flag bonus
+6. it ranks the sections
+7. it fetches the top-scoring sections
+8. it sends that fetched context to Gemini for analysis
+
+In short:
+
+`question -> query tokens -> section ranking -> top section fetch -> Gemini output`
+
+## Worked Example
+
+For a question like:
+
+`What are the main risks?`
+
+the retriever will usually:
+
+1. tokenize the query into words like `what`, `are`, `the`, `main`, `risks`
+2. recognize that `risks` maps strongly to the `risk_factors` and `mda` sections
+3. score those sections higher than unrelated sections like `legal` or `notes`
+4. fetch the top matched sections
+5. pass those sections to Gemini
+6. produce structured output such as:
+   - top risks
+   - risk categories
+   - red flags
+   - confidence score
+   - summary
+
+## In-App Retrieval Visualization
+
+The Streamlit UI now includes a detailed retrieval walkthrough under:
+
+`How Vectorless RAG Stores This Report`
+
+Inside that panel, the app shows:
+
+- `Retrieval Flow Diagram`
+- `Fetch Trace`
+- `Ranked Section Cards`
+- `Worked Example: How Data Was Found`
+
+That means you can inspect:
+
+- how the query was understood
+- how the matching section was found
+- what text was fetched
+- what context was sent to Gemini
+- how the final structured output was formed
+
 ## Features
 
 ### Single Report Analysis
